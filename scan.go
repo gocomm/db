@@ -39,7 +39,15 @@ func scanSlice(val reflect.Value, rows *sql.Rows) (interface{}, error) {
 			if err := rows.Scan(fs...); err != nil {
 				return nil, err
 			}
-			val = reflect.Append(val, v)
+			val = reflect.Append(val, v.Elem())
+		}
+	default:
+		for rows.Next() {
+			v := reflect.New(eleType)
+			if err := rows.Scan(v.Interface()); err != nil {
+				return nil, err
+			}
+			val = reflect.Append(val, v.Elem())
 		}
 	}
 	return val.Interface(), nil
