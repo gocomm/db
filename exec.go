@@ -6,7 +6,14 @@ import (
 
 func Insert(db *sql.DB, q string, v ...interface{}) (int64, error) {
 	if rst, err := db.Exec(q, v...); err == nil {
-		return rst.LastInsertId()
+		if effected, err := rst.RowsAffected(); err == nil {
+			if effected == 0 {
+				return 0, ZeroEffected
+			}
+			return rst.LastInsertId()
+		} else {
+			return 0, err
+		}
 	} else {
 		return 0, err
 	}
@@ -15,7 +22,14 @@ func Insert(db *sql.DB, q string, v ...interface{}) (int64, error) {
 func (tx *MayTx) Insert(q string, v ...interface{}) (int64, error) {
 	if tx != nil {
 		if rst, err := tx.Exec(q, v...); err == nil {
-			return rst.LastInsertId()
+			if effected, err := rst.RowsAffected(); err == nil {
+				if effected == 0 {
+					return 0, ZeroEffected
+				}
+				return rst.LastInsertId()
+			} else {
+				return 0, err
+			}
 		} else {
 			return 0, err
 		}
