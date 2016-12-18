@@ -87,6 +87,7 @@ func scanRows(obj interface{}, rows *sql.Rows) error {
 
 func Query(db *sql.DB, obj interface{}, q string, v ...interface{}) error {
 	if rows, err := db.Query(q, v...); err == nil {
+		defer rows.Close()
 		return scanRows(obj, rows)
 	} else {
 		return err
